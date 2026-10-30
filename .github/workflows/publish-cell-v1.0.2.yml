@@ -1,0 +1,32 @@
+name: Publish Cell-CoA v1.0.2 prerelease
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".release-cell-v1.0.2"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: github.event.head_commit.message == 'Trigger Cell-CoA v1.0.2 prerelease'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package and publish prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          zip -r Cell-CoA-v1.0.2.zip Cell
+          cat > release-notes.md <<'EOF'
+          Cell-CoA v1.0.2
+
+          Complete Cell addon source, including embedded libraries and license notices. Extract the Cell folder into Interface/AddOns/.
+
+          In-game validation is not confirmed here; this build is marked as a prerelease.
+          Maintainer: Uncle Bone — https://github.com/downingwow
+          EOF
+          gh release create v1.0.2 Cell-CoA-v1.0.2.zip --repo "$GITHUB_REPOSITORY" --title "Cell-CoA v1.0.2" --target "$GITHUB_SHA" --prerelease --notes-file release-notes.md
